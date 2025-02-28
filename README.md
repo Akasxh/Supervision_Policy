@@ -1,7 +1,5 @@
 # Supervision_Policy
 
-# AI Teams with LangGraph
-
 A powerful multi-agent system built with LangGraph that creates specialized AI teams for research and content generation. This system orchestrates multiple specialized agents to work together through a hierarchical structure of supervisors and workers.
 
 ## Overview
@@ -20,16 +18,23 @@ The system is organized into three main graphs:
 1. **Research Graph**: Handles information gathering
    - Search Agent: Uses Tavily to search the web
    - Web Scraper: Extracts content from websites
+   
+![Research Team](images/research.png)
 
 2. **Paper Writing Graph**: Manages content creation
    - Document Writer: Writes and edits documents
    - Note Taker: Creates outlines and reads documents
    - Chart Generator: Creates data visualizations
+  
+![Paper Writing Team](images/paper.png)
 
 3. **Super Graph**: Coordinates between teams
    - Teams Supervisor: Decides whether to use the research or writing team
    - Research Team: Calls the research graph
    - Writing Team: Calls the paper writing graph
+
+![AI Team Architecture](images/final.png)
+
 
 ## Requirements
 
