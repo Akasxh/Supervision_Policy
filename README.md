@@ -35,26 +35,6 @@ The system is organized into three main graphs:
 
 ![AI Team Architecture](images/final.png)
 
-
-## Requirements
-
-- Python 3.8+
-- OpenAI API key
-- Tavily API key
-- Required packages:
-  - langgraph
-  - langchain
-  - langchain_community
-  - langchain_anthropic
-  - langchain_experimental
-  - langchain_openai
-
-## Installation
-
-```bash
-pip install -U langgraph langchain_community langchain_anthropic langchain_experimental langchain_openai
-```
-
 ## Environment Setup
 
 You'll need to set the following environment variables:
@@ -63,8 +43,6 @@ You'll need to set the following environment variables:
 export OPENAI_API_KEY=your_openai_api_key
 export TAVILY_API_KEY=your_tavily_api_key
 ```
-
-Or provide them when prompted by the application.
 
 ## Usage
 
