@@ -1,90 +1,95 @@
-# Supervision_Policy
+# Supervision Policy
 
-A powerful multi-agent system built with LangGraph that creates specialized AI teams for research and content generation. This system orchestrates multiple specialized agents to work together through a hierarchical structure of supervisors and workers.
+Hierarchical multi-agent system built with LangGraph that coordinates specialized AI teams for research and content generation. A top-level supervisor delegates tasks to a Research Team and a Writing Team, each with their own sub-supervisors and worker agents.
 
-## Overview
+```mermaid
+flowchart TB
+    A[User Request] --> B[Teams Supervisor]
 
-This project demonstrates how to build complex AI teams using LangGraph. It features:
+    B -->|Research needed| C[Research Supervisor]
+    B -->|Writing needed| D[Writing Supervisor]
 
-- **Team-based Architecture**: Hierarchical structure with supervisors and specialized workers
-- **Research Team**: Capable of searching the web and scraping content
-- **Writing Team**: Creates outlines, writes documents, and generates charts
-- **Supervisor Agents**: Coordinate work between specialized agents
+    subgraph Research["Research Team"]
+        C --> E[Search Agent]
+        C --> F[Web Scraper]
+        E -->|Tavily API| G[Search Results]
+        F -->|BeautifulSoup| H[Page Content]
+    end
+
+    subgraph Writing["Writing Team"]
+        D --> I[Note Taker]
+        D --> J[Document Writer]
+        D --> K[Chart Generator]
+        I --> L[Outline]
+        J --> M[Document]
+        K -->|Python REPL| N[Visualization]
+    end
+
+    style B fill:#1e293b,color:#e2e8f0
+    style C fill:#334155,color:#e2e8f0
+    style D fill:#334155,color:#e2e8f0
+```
 
 ## Architecture
 
-The system is organized into three main graphs:
+The system is organized as three nested LangGraph state machines:
 
-1. **Research Graph**: Handles information gathering
-   - Search Agent: Uses Tavily to search the web
-   - Web Scraper: Extracts content from websites
-   
-![Research Team](images/research.png)
+| Graph | Role | Agents |
+|-------|------|--------|
+| **Super Graph** | Top-level routing | Teams Supervisor |
+| **Research Graph** | Information gathering | Search Agent (Tavily), Web Scraper (BeautifulSoup) |
+| **Writing Graph** | Content creation | Note Taker, Document Writer, Chart Generator (Python REPL) |
 
-2. **Paper Writing Graph**: Manages content creation
-   - Document Writer: Writes and edits documents
-   - Note Taker: Creates outlines and reads documents
-   - Chart Generator: Creates data visualizations
-  
-![Paper Writing Team](images/paper.png)
+Each supervisor uses structured LLM output to decide which worker to invoke next, continuing until the task is marked `FINISH`.
 
-3. **Super Graph**: Coordinates between teams
-   - Teams Supervisor: Decides whether to use the research or writing team
-   - Research Team: Calls the research graph
-   - Writing Team: Calls the paper writing graph
+## Features
 
-![AI Team Architecture](images/final.png)
-
-## Environment Setup
-
-You'll need to set the following environment variables:
-
-```bash
-export OPENAI_API_KEY=your_openai_api_key
-export TAVILY_API_KEY=your_tavily_api_key
-```
+- **Hierarchical supervision** -- LLM-based routers at each level decide task delegation dynamically
+- **Web research** -- Tavily search + full page scraping for deep information gathering
+- **Document tools** -- Create outlines, write/edit documents, and read files within a sandboxed working directory
+- **Chart generation** -- Python REPL tool for producing data visualizations on the fly
+- **Composable graphs** -- Each team graph can be used independently or composed under the super graph
 
 ## Usage
 
-The system can be used for a variety of tasks that combine research and content creation:
-
 ```python
-# Example: Research AI agents and write a report
 for s in super_graph.stream(
-    {
-        "messages": [
-            ("user", "Research AI agents and write a brief report about them.")
-        ],
-    },
+    {"messages": [("user", "Research AI agents and write a brief report.")]},
     {"recursion_limit": 10},
 ):
     print(s)
-    print("---")
 ```
 
-Other example tasks:
-- Write an outline and full poem about cats
-- Research Taylor Swift's next tour and create a summary
-- Generate reports with data visualizations
+### Environment Setup
 
-## How It Works
+```bash
+export OPENAI_API_KEY=your_key
+export TAVILY_API_KEY=your_key
+```
 
-1. The supervisor agent decides which team should handle the task
-2. If research is needed, the Research Team:
-   - Searches for information using Tavily
-   - Scrapes websites for additional context
-3. If content creation is needed, the Writing Team:
-   - Creates an outline with the Note Taker
-   - Writes content with the Document Writer
-   - Generates visualizations with the Chart Generator
-4. The teams report back to their supervisors who coordinate the workflow
+## Project Structure
 
-## Tools
+```
+Supervision_Policy/
+├── research_agent_v3.ipynb    # Full implementation notebook
+├── images/
+│   ├── research.png           # Research team graph visualization
+│   ├── paper.png              # Writing team graph visualization
+│   └── final.png              # Super graph visualization
+└── README.md
+```
 
-The system includes several specialized tools:
+## Tech Stack
 
-- **Document Tools**: create_outline, read_document, write_document, edit_document
-- **Research Tools**: TavilySearchResults, scrape_webpages
-- **Visualization Tools**: python_repl_tool for generating charts
+| Component | Technology |
+|-----------|-----------|
+| Orchestration | LangGraph (StateGraph, Command routing) |
+| LLM | OpenAI (via LangChain) |
+| Search | Tavily Search API |
+| Scraping | LangChain WebBaseLoader |
+| Code Execution | LangChain PythonREPL |
+| Notebook | Jupyter / Google Colab |
 
+## License
 
+MIT
